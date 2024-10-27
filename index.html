@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剧本编辑器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="script-container">
+            <table id="script-table">
+                <thead>
+                    <tr>
+                        <th>角色</th>
+                        <th>表情</th>
+                        <th>场景</th>
+                        <th>转场</th>
+                        <th>内容</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="script-body"></tbody>
+            </table>
+        </div>
+        <div id="buttons">
+            <button id="add-text">添加文本行</button>
+            <button id="add-action">添加动作行</button>
+            <button id="delete-row">删除行</button>
+        </div>
+        <div id="file-buttons">
+            <button id="save">保存</button>
+            <button id="load">加载</button>
+            <button id="export">导出</button>
+            <span id="copy-hint" class="hidden">内容已复制到剪贴板！</span>
+        </div>
+        <div id="edit-area">
+            <textarea id="input-box" rows="4"></textarea>
+            <div id="preview-container">
+                <div id="preview-box"></div>
+                <button id="play-button">▶</button>
+            </div>
+            <div id="button-container">
+                <button id="shake-button" class="hexagon">抖动</button>
+                <button id="color-button" class="hexagon">颜色</button>
+                <button id="alpha-button" class="hexagon">透明</button>
+                <button id="align-button" class="hexagon">对齐</button>
+            </div>
+            <div id="button-container-2">
+                <button id="speed-button">速度</button>
+                <button id="halt-button">停延</button>
+                <button id="sfx-button">音效</button>
+                <button id="flash-button">闪屏</button>
+                <button id="scrn-shake-button">摇晃</button>
+            </div>
+            <div id="shake-menu" class="hidden">
+                <button data-value="0">0</button>
+                <button data-value="1">1</button>
+                <button data-value="2">2</button>
+                <button data-value="3">3</button>
+                <button data-value="4">4</button>
+                <button data-value="5">5</button>
+            </div>
+            <div id="color-menu" class="hidden">
+                <button data-value="red">红</button>
+                <button data-value="green">绿</button>
+                <button data-value="aqua">青</button>
+                <button data-value="white">白</button>
+            </div>
+            <div id="alpha-menu" class="hidden">
+                <span id="alpha-value-display">1.0</span>
+                <input type="range" id="alpha-slider" min="0" max="1" step="0.1" value="1">
+                <button id="alpha-confirm">确定</button>
+            </div>
+            <div id="align-menu" class="hidden">
+                <button data-value="left">居左</button>
+                <button data-value="centre">居中</button>
+            </div>
+            <div id="speed-menu" class="hidden">
+                <button data-value="slow">慢速</button>
+                <button data-value="mid">中速</button>
+                <button data-value="fast">快速</button>
+                <button data-value="urge">紧急</button>
+            </div>
+            <div id="halt-menu" class="hidden">
+                <button data-value="10">10</button>
+                <button data-value="30">30</button>
+                <button data-value="60">60</button>
+                <button data-value="100">100</button>
+            </div>
+            <div id="sfx-menu" class="hidden">
+                <!-- 这里的选项将由 JavaScript 动态填充 -->
+            </div>
+            <div id="flash-menu" class="hidden">
+                <button data-value="small">小</button>
+                <button data-value="medium">中</button>
+                <button data-value="large">大</button>
+            </div>
+            <div id="scrn-shake-menu" class="hidden">
+                <button data-value="small">小</button>
+                <button data-value="medium">中</button>
+                <button data-value="large">大</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
