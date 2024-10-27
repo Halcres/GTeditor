@@ -1,0 +1,503 @@
+body {
+    font-family: SimSun, serif;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+#app {
+    width: 100%;
+    max-width: 920px; /* 稍微增加以适应更宽的输入框和预览框 */
+}
+
+#script-container {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+#script-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#script-table tr {
+    background-color: #f0f0f0;
+}
+
+#script-table td {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+#script-table .character {
+    width: 100px;
+}
+
+#script-table .selected {
+    background-color: yellow;
+}
+
+#script-table th {
+    background-color: #f0f0f0;
+    padding: 5px;
+    text-align: left;
+}
+
+#script-table .expression {
+    width: 100px;
+}
+
+#script-table .scene {
+    width: 100px;
+}
+
+#buttons, #file-buttons {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+#buttons button, #file-buttons button {
+    margin: 0 5px;
+}
+
+#edit-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#input-box, #preview-box {
+    width: 528px; /* 24个汉字 * 22px */
+    height: 132px; /* 6行 * 22px */
+    font-family: SimSun, serif;
+    font-size: 22px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#input-box {
+    resize: vertical;
+}
+
+#preview-box {
+    background-color: black;
+    color: white;
+    overflow-y: auto;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.drag-handle {
+    cursor: move;
+    user-select: none;
+}
+
+/* 在文件末尾添加以下内容 */
+
+#shake-button {
+    width: 60px;
+    height: 52px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    position: relative;
+    z-index: 1;
+}
+
+#shake-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#shake-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#shake-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 替换原有的shake动画 */
+@keyframes shake1 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-1px, 1px) rotate(-1deg); }
+    50% { transform: translate(-1px, -1px) rotate(1deg); }
+    75% { transform: translate(1px, -1px) rotate(-1deg); }
+}
+
+@keyframes shake2 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(1px, 1px) rotate(-1deg); }
+    75% { transform: translate(-1px, 1px) rotate(1deg); }
+}
+
+@keyframes shake3 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-1px, -1px) rotate(1deg); }
+    50% { transform: translate(1px, -1px) rotate(-1deg); }
+    75% { transform: translate(1px, 1px) rotate(1deg); }
+}
+
+@keyframes shake4 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(1px, 1px) rotate(-1deg); }
+    50% { transform: translate(-1px, 1px) rotate(1deg); }
+    75% { transform: translate(-1px, -1px) rotate(-1deg); }
+}
+
+.shake1 { animation: shake1 0.5s infinite; }
+.shake2 { animation: shake2 0.5s infinite; }
+.shake3 { animation: shake3 0.5s infinite; }
+.shake4 { animation: shake4 0.5s infinite; }
+.shake5 { animation: shake1 0.3s infinite; }
+
+/* 添加这个样式来确保动画效果可见 */
+#preview-box span {
+    display: inline-block;
+}
+
+#button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#color-button {
+    width: 60px;
+    height: 52px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    position: relative;
+    z-index: 1;
+}
+
+#color-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#color-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#color-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+#alpha-button {
+    width: 60px;
+    height: 52px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    position: relative;
+    z-index: 1;
+}
+
+#alpha-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    padding: 10px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#alpha-slider {
+    width: 200px;
+}
+
+#alpha-confirm {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+/* 在文件末尾添加以下样式 */
+
+#alpha-value-display {
+    display: block;
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#align-button {
+    width: 60px;
+    height: 52px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    position: relative;
+    z-index: 1;
+}
+
+#align-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#align-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#align-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+#preview-container {
+    position: relative;
+    width: 528px;
+}
+
+#play-button {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#play-button:hover {
+    background-color: #45a049;
+}
+
+#button-container-2 {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#speed-button {
+    width: 60px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+#speed-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#speed-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#speed-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+#halt-button {
+    width: 60px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+#halt-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#halt-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#halt-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+/* 修改六边形按钮的样式 */
+#shake-button,
+#color-button,
+#alpha-button,
+#align-button {
+    width: 60px;
+    height: 30px; /* 调整高度与矩形按钮一致 */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 调整按钮容器的样式 */
+#button-container,
+#button-container-2 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* 确保所有按钮的基本样式一致 */
+#button-container button,
+#button-container-2 button {
+    font-size: 14px;
+}
+
+/* 移除之前单独为 speed-button 和 halt-button 设置的样式 */
+#speed-button,
+#halt-button {
+    width: 60px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+/* 移除 halt-button 的左边距 */
+#halt-button {
+    margin-left: 0;
+}
+
+#script-table .transition {
+    width: 50px;
+    text-align: center;
+}
+
+#script-table .transition input[type="checkbox"] {
+    transform: scale(1.5);
+}
+
+/* 在文件末尾添加以下样式 */
+#sfx-button {
+    width: 60px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+#sfx-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#sfx-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#sfx-menu button:hover {
+    background-color: #f1f1f1;
+}
