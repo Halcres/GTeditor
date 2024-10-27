@@ -463,3 +463,41 @@ body {
 #script-table .transition input[type="checkbox"] {
     transform: scale(1.5);
 }
+
+/* 在文件末尾添加以下样式 */
+#sfx-button {
+    width: 60px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+#sfx-menu {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+#sfx-menu button {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#sfx-menu button:hover {
+    background-color: #f1f1f1;
+}

@@ -16,13 +16,17 @@ let expressionCharMap = {};
 let sceneList = [];
 let sceneCharMap = {};
 
+// 在文件开头添加新的变量
+let sfxList = [];
+
 // 修改读取文件的部分，添加读取表情字符对应.csv的逻辑
 Promise.all([
     fetch('名字字符对应.csv').then(response => response.text()),
     fetch('表情字符对应.csv').then(response => response.text()),
-    fetch('场景字符对应.csv').then(response => response.text())
+    fetch('场景字符对应.csv').then(response => response.text()),
+    fetch('sfx_list.json').then(response => response.json())
 ])
-.then(([nameData, expressionData, sceneData]) => {
+.then(([nameData, expressionData, sceneData, sfxData]) => {
     // 处理名字字符对应.csv
     const nameLines = nameData.split('\n');
     nameLines.forEach(line => {
@@ -65,11 +69,25 @@ Promise.all([
         }
     });
 
+    // 处理音效文件列表
+    sfxList = sfxData.sfxFiles
+        .filter(file => file.endsWith('.wav') && file.startsWith('sfx_'))
+        .map(file => file.slice(4, -4)); // 去掉 'sfx_' 前缀和 '.wav' 后缀
+
+    // 填充音效菜单
+    const sfxMenu = document.getElementById('sfx-menu');
+    sfxList.forEach(sfx => {
+        const button = document.createElement('button');
+        button.textContent = sfx;
+        button.dataset.value = sfx;
+        sfxMenu.appendChild(button);
+    });
+
     renderScript(); // 重新渲染脚本以更新角色名、表情和场景下拉框
 })
 .catch(error => {
-    console.error('Error loading CSV files:', error);
-    alert('无法加载CSV文件，请确保文件存在并且可以访问。');
+    console.error('Error loading files:', error);
+    alert('无法加载文件，请确保文件存在并且可以访问。');
 });
 
 function renderScript() {
@@ -96,7 +114,7 @@ function renderScript() {
             <td class="transition">
                 <input type="checkbox" ${row.transition ? 'checked' : ''} onchange="updateTransition(${index}, this.checked)">
             </td>
-            <td class="content">${stripTags(row.content)}</td>
+            <td class="content" style="white-space: pre-wrap;">${stripTags(row.content)}</td>
             <td class="drag-handle">⋮⋮</td>
         `;
         tr.dataset.index = index;
@@ -260,7 +278,7 @@ document.getElementById('load').addEventListener('click', () => {
     input.click();
 });
 
-// 初始化拖拽功能
+// 初始化拖功能
 let draggedRow = null;
 
 document.getElementById('script-body').addEventListener('dragstart', (e) => {
@@ -463,7 +481,7 @@ alphaConfirm.addEventListener('click', () => {
 
     let newText;
     if (start === end) {
-        // 没有选中文本,在��标处插入标签
+        // 没有选中文本,在标处插入标签
         newText = text.slice(0, start) + `<alpha=${alphaValue}>` + text.slice(start);
         inputBox.value = newText;
         inputBox.setSelectionRange(start + 9 + alphaValue.length, start + 9 + alphaValue.length);
@@ -575,6 +593,9 @@ function updatePreview() {
             } else if (content.startsWith('[halt=', i)) {
                 const endIndex = content.indexOf(']', i);
                 i = endIndex + 1;
+            } else if (content.startsWith('[sfx=', i)) {
+                const endIndex = content.indexOf(']', i);
+                i = endIndex + 1;
             } else if (content[i] === '\n') {
                 html += '<br>';
                 i++;
@@ -597,33 +618,32 @@ document.addEventListener('DOMContentLoaded', updatePreview);
 function updateScriptTable() {
     const scriptBody = document.getElementById('script-body');
     const rows = scriptBody.getElementsByTagName('tr');
-    scriptData.forEach((row, index) => {
-        if (rows[index]) {
-            const characterSelect = rows[index].querySelector('.character select');
-            const expressionSelect = rows[index].querySelector('.expression select');
-            const sceneSelect = rows[index].querySelector('.scene select');
-            const transitionCheckbox = rows[index].querySelector('.transition input');
-            const contentCell = rows[index].querySelector('.content');
-            
-            if (characterSelect) {
-                characterSelect.value = row.character;
-                characterSelect.innerHTML = getCharacterOptions(row.character);
-            }
-            if (expressionSelect) {
-                expressionSelect.innerHTML = getExpressionOptions(row.character, row.expression);
-                expressionSelect.value = row.expression;
-            }
-            if (sceneSelect) {
-                sceneSelect.value = row.scene;
-            }
-            if (transitionCheckbox) {
-                transitionCheckbox.checked = row.transition;
-            }
-            if (contentCell) {
-                contentCell.textContent = stripTags(row.content);
-            }
+    const row = rows[selectedRow];
+    if (row) {
+        const characterSelect = row.querySelector('.character select');
+        const expressionSelect = row.querySelector('.expression select');
+        const sceneSelect = row.querySelector('.scene select');
+        const transitionCheckbox = row.querySelector('.transition input');
+        const contentCell = row.querySelector('.content');
+        
+        if (characterSelect) {
+            characterSelect.value = scriptData[selectedRow].character;
+            characterSelect.innerHTML = getCharacterOptions(scriptData[selectedRow].character);
         }
-    });
+        if (expressionSelect) {
+            expressionSelect.innerHTML = getExpressionOptions(scriptData[selectedRow].character, scriptData[selectedRow].expression);
+            expressionSelect.value = scriptData[selectedRow].expression;
+        }
+        if (sceneSelect) {
+            sceneSelect.value = scriptData[selectedRow].scene;
+        }
+        if (transitionCheckbox) {
+            transitionCheckbox.checked = scriptData[selectedRow].transition;
+        }
+        if (contentCell) {
+            contentCell.textContent = stripTags(scriptData[selectedRow].content);
+        }
+    }
 }
 
 // 添加新的函数来保持选择状态
@@ -762,6 +782,11 @@ function typeWriter(content, previewBox) {
                     addNextChar();
                 }, haltFrames * 16.7); // 将帧数转换为毫秒
                 return;
+            } else if (content.startsWith('[sfx=', i)) {
+                const endIndex = content.indexOf(']', i);
+                const sfxName = content.slice(i + 5, endIndex);
+                playSfx(sfxName);
+                i = endIndex + 1;
             } else if (content[i] === '\n') {
                 html += '<br>';
                 i++;
@@ -782,6 +807,12 @@ function typeWriter(content, previewBox) {
     }
 
     addNextChar();
+}
+
+// 添加播放音效的函数
+function playSfx(sfxName) {
+    const audio = new Audio(`sfxs/sfx_${sfxName}.wav`);
+    audio.play().catch(error => console.error('Error playing audio:', error));
 }
 
 // 修改 updatePreview 函数
@@ -818,6 +849,9 @@ function updatePreview() {
                 const endIndex = content.indexOf(']', i);
                 i = endIndex + 1;
             } else if (content.startsWith('[halt=', i)) {
+                const endIndex = content.indexOf(']', i);
+                i = endIndex + 1;
+            } else if (content.startsWith('[sfx=', i)) {
                 const endIndex = content.indexOf(']', i);
                 i = endIndex + 1;
             } else if (content[i] === '\n') {
@@ -951,7 +985,7 @@ function stripTags(content) {
 
 // 修改 saveContent 函数
 function saveContent(newText) {
-    const match = newText.match(/^(.+?)\((.+?)\)\[(.+?)\]:(.*)$/);
+    const match = newText.match(/^(.+?)\((.+?)\)\[(.+?)\]:(.*)$/s);
     if (match) {
         const [, character, expression, scene, content] = match;
         const isTransition = scene.startsWith('转');
@@ -963,14 +997,12 @@ function saveContent(newText) {
             content: content.trim() 
         };
     } else {
-        // 如果没有匹配到完整的格式，至少保存内容
+        // 如果没有匹配到完整的格式，保留原有的角色名、表情和场景信息
         const colonIndex = newText.indexOf(':');
         if (colonIndex !== -1) {
-            const character = newText.slice(0, colonIndex).trim();
             const content = newText.slice(colonIndex + 1).trim();
             scriptData[selectedRow] = { 
                 ...scriptData[selectedRow], 
-                character, 
                 content 
             };
         }
@@ -1011,4 +1043,54 @@ function updateTransition(index, isTransition) {
     }
     updateScriptTable();
 }
+
+const sfxButton = document.getElementById('sfx-button');
+const sfxMenu = document.getElementById('sfx-menu');
+
+sfxButton.addEventListener('click', () => {
+    const inputBox = document.getElementById('input-box');
+    const start = inputBox.selectionStart;
+    const end = inputBox.selectionEnd;
+    
+    sfxMenu.classList.toggle('hidden');
+    
+    // 保存当前的光标位置
+    sfxMenu.dataset.start = start;
+    sfxMenu.dataset.end = end;
+
+    // 保持输入框的焦点和选中状态
+    inputBox.focus();
+    inputBox.setSelectionRange(start, end);
+});
+
+sfxMenu.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+        const sfxValue = e.target.dataset.value;
+        const inputBox = document.getElementById('input-box');
+        const start = parseInt(sfxMenu.dataset.start);
+        const end = parseInt(sfxMenu.dataset.end);
+        const text = inputBox.value;
+
+        let newText;
+        if (start === end) {
+            // 没有选中文本,在光标处插入标签
+            newText = text.slice(0, start) + `[sfx=${sfxValue}]` + text.slice(start);
+            inputBox.value = newText;
+            inputBox.setSelectionRange(start + sfxValue.length + 6, start + sfxValue.length + 6);
+        } else {
+            // 选中了文本,在选中文本的开头插入标签
+            newText = text.slice(0, start) + `[sfx=${sfxValue}]` + text.slice(start);
+            inputBox.value = newText;
+            inputBox.setSelectionRange(start, end + sfxValue.length + 6);
+        }
+
+        sfxMenu.classList.add('hidden');
+        saveContent(newText);
+        updatePreview();
+        updateScriptTable();
+        
+        // 保持输入框的焦点
+        inputBox.focus();
+    }
+});
 
