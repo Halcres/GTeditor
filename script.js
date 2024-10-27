@@ -37,6 +37,7 @@ Promise.all([
                 allCharacters.push(name.trim());
             }
         }
+        
     });
 
     // 处理表情字符对应.csv
