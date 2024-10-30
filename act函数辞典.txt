@@ -1,0 +1,306 @@
+#region Plot & Chain
+
+function act_con_sleep(sleep_time) {
+	obj_plot.alarm[0] = sleep_time;
+}
+
+function act_ins_cross_start_set(false_present_chain_name, press_end_act) {
+	obj_plot.mark_master_chain();
+	obj_plot.false_present_chain_name = false_present_chain_name;
+	obj_plot.press_end_act = press_end_act;
+}
+
+function act_ins_reset_press_chain(cross_master_chain_name, cross_item_index, new_chain_name) {
+	obj_plot.get_chain_by_name(cross_master_chain_name).items[cross_item_index].press_chain_name = new_chain_name;
+}
+
+function act_con_enter_testimony(person_code) {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	with (my_ani) {
+		sprite_index = spr_an_testimony_start;
+		action_flag_init();
+		animation_actions[5] = function() {
+			audio_play_sound(sfx_testimony2, 0, 0, global.sfx_volume);
+			obj_plot.next();
+			obj_textbar.show();
+		};
+		end_action = function() {
+			obj_textbar.freeze = false;
+		}
+	}
+	obj_textbar.freeze = true;
+	obj_textbar.set_person(person_code);
+	obj_textbar.set_voice(sfx_typwriter);
+	obj_drawer.set_scene_sprite("witness");
+}
+
+function act_con_enter_crossexam(person_code) {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	with (my_ani) {
+		sprite_index = spr_an_crossexam_start;
+		action_flag_init();
+		animation_actions[5] = function() {
+			audio_play_sound(sfx_testimony2, 0, 0, global.sfx_volume);
+			obj_plot.next();
+			obj_textbar.show();
+		};
+		end_action = function() {
+			obj_textbar.freeze = false;
+		}
+	}
+	obj_textbar.freeze = true;
+	obj_textbar.set_person(person_code);
+	obj_textbar.set_voice(sfx_typwriter);
+	obj_drawer.set_scene_sprite("witness");
+}
+	
+function act_end_enter_rhythm_statement(rs) {
+	act_ins_bgm_remove("cut");
+	act_ins_sfx_play(sfx_rs_start);
+	obj_drawer.pre_enter_rs();
+	obj_textbar.cur_rs = rs;
+	obj_textbar.freeze = true;
+}
+
+function act_ins_rs_enter_break() {
+	obj_rhythm_statement.enter_hint_break();
+}
+
+function act_ins_rs_exit_break() {
+	obj_rhythm_statement.exit_hint_break();
+}
+
+function act_end_press_default_end() {
+	with (obj_plot) {
+		
+		
+		var cur_cross_master_chain = get_chain_by_name(cross_master_chain_name);
+		var master_chain_items = cur_cross_master_chain.items;
+		cur_chain.next_chain_item_num = loop_add(get_master_item_index(), array_length(master_chain_items));
+		if (cur_chain.next_chain_item_num == 0) { //if loop avtivated, go to help first
+			cur_chain.next_chain_name = cur_cross_master_chain.next_chain_name;
+		}
+		
+		if (not is_undefined(press_end_act)) {
+			press_end_act();
+		}
+		
+	}
+	
+	act_con_transition_fade();
+}
+
+function act_end_enter_option(options_arr) {
+	obj_textbar.set_options(options_arr);
+}
+
+function act_ins_reset_next_chain(name, index = 0) {
+	obj_plot.cur_chain.next_chain_name = name;
+	obj_plot.cur_chain.next_chain_item_num = index;
+}
+
+#endregion
+
+#region Drawer
+function act_ins_evidence_showcase(spr, side) {
+	obj_drawer.evid_showcase(spr, side);
+	audio_play_sound(sfx_evidenceshoop, 0, 0, global.sfx_volume);
+}
+
+function act_ins_evidence_showcase_clear(side = "both") {
+	obj_drawer.evid_showcase_clear(side);
+	audio_play_sound(sfx_evidenceshoop, 0, 0, global.sfx_volume);
+}
+
+function act_ins_set_picture(spr) {
+	obj_drawer.set_picture(spr);
+}
+
+#endregion
+
+#region Screen Drawer
+
+function act_con_transition_fade(time = 25, col = c_black) {
+	obj_screen_drawer.perform_scrn_transition("color_fade", time, {color: col});
+}
+
+function act_ins_flashlight(fade_spd = 0.15, max_alpha = 0.8) {
+	obj_screen_drawer.fs_fade_spd = fade_spd;
+	obj_screen_drawer.fs_alpha = max_alpha;
+}
+
+#endregion
+
+#region Music
+
+function act_ins_sfx_play(sfx) {
+	audio_play_sound(sfx, 0, 0, global.sfx_volume);
+}
+
+function act_ins_bgm_set(bgm_name) {
+	obj_music_player.set_music(bgm_name);
+}
+
+function act_ins_bgm_remove(pattern = "fade", others = 20) {
+	obj_music_player.remove_music(pattern, others);
+}
+	
+#endregion
+
+#region Animations
+
+function act_con_ani_gavel(times = 1) {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	with (my_ani) {
+		global.ori_show = obj_textbar.show_self;
+		sprite_index = spr_an_gavel;
+		action_flag_init();
+		animation_actions[2] = function() {
+			audio_play_sound(sfx_gavel, 0, 0, global.sfx_volume);
+		};
+		end_action = function() {
+			obj_textbar.freeze = false;
+			obj_plot.next();
+			obj_textbar.show_self = global.ori_show;
+		}
+	}
+	obj_textbar.freeze = true;
+}
+
+function act_ins_testimony_ani_play() {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	with (my_ani) {
+		sprite_index = spr_an_testimony_telling;
+		action_flag_init();
+		loop = true;
+	}
+}
+
+function act_ins_testimony_ani_stop() {
+	with(obj_animation) {
+		if (sprite_index == spr_an_testimony_telling) {
+			instance_destroy();
+		}
+	}
+}
+
+function act_con_ani_bubble(_spr, _snd = sfx_objection) {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	my_ani.sprite_index = _spr;
+	my_ani.bubble_snd = _snd;
+	my_ani.bubble_mode = true;
+	with (my_ani) {		
+		loop = true;
+		alarm[0] = 60;
+		action_flag_init();
+		animation_actions[0] = function() {
+			audio_play_sound(bubble_snd, 0, 0, 1);
+			if (bubble_snd != sfx_objection) {
+				audio_play_sound(sfx_objection, 0, 0, global.sfx_volume * 0.7);
+			}
+		};
+		end_action = function() {
+			obj_textbar.freeze = false;
+			obj_textbar.show();
+			obj_plot.next();
+		};
+		preset_action = ["shake"];
+		shakerange = 30;
+	}
+	obj_screen_drawer.fs_alpha = 0.8;
+	obj_textbar.hide();
+}
+
+function act_con_ani_judgement(judgement, gap = 10) {
+	var my_ani = instance_create_depth(0, 0, -300, obj_animation);
+	my_ani.sprite_index = noone;
+	my_ani.judgement = judgement;
+	my_ani.judgement_gap = gap;
+
+
+	with (my_ani) {		
+		judgement_mode = true;
+		judgement_init();
+		
+		end_action = function() {
+			obj_textbar.freeze = false;
+			obj_textbar.show();
+			obj_plot.next();
+		};
+	}
+	obj_textbar.hide();
+}
+
+#endregion
+
+#region Textbar
+
+function act_ins_set_all(str) {
+	obj_textbar.set_all(str);
+}
+
+function act_ins_textbar_hide() {
+	obj_textbar.show_self = false;
+}
+function act_ins_textbar_show() {
+	obj_textbar.show_self = true;
+}
+
+function act_ins_textbar_deactivate() {
+	obj_textbar.show_self = false;
+	obj_textbar.freeze = true;
+}
+
+function act_ins_textbar_activate() {
+	obj_textbar.show();
+	obj_textbar.freeze = false;
+}
+
+function act_ins_start_auto_play(pause_time = 10) {
+	obj_textbar.start_auto_play(pause_time);
+}
+
+function act_ins_stop_auto_play() {
+	obj_textbar.stop_auto_play();
+}
+
+function act_ins_scrn_shake(shakerange = 15) {
+	global.screen_shakerange = shakerange;
+}
+
+#endregion
+
+#region Court Records
+
+function act_con_evidence_get(id, text) {
+	obj_court_records.evidence_get(id, text);
+}
+
+function act_ins_evidence_add(id) {
+	obj_court_records.evidence_add(id);
+}
+
+function act_ins_person_add(id) {
+	obj_court_records.person_add(id);
+}
+
+function act_ins_person_update(id, new_id) {
+	obj_court_records.person_update(id, new_id);
+}
+
+function act_ins_evidence_remove(id) {
+	obj_court_records.evidence_remove(id);
+}
+
+function act_end_present_require(correct_evid_id, false_chain_name, correct_chain_name) {
+	obj_textbar.stop_auto_play();
+	obj_court_records.show_self = true;
+	obj_court_records.present_require = true;
+	obj_court_records.requirement = new PresentRequirement(
+		correct_evid_id,
+		false_chain_name,
+		correct_chain_name
+	);
+}
+
+#endregion
