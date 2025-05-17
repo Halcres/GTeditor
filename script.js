@@ -21,8 +21,8 @@ let sfxList = [];
 
 // 修改读取文件的部分，添加读取表情字符对应.csv的逻辑
 Promise.all([
-    fetch('名字字符对应.csv').then(response => response.text()),
-    fetch('表情字符对应.csv').then(response => response.text()),
+    fetch('原版名字字符对应.csv').then(response => response.text()),
+    fetch('原版表情字符对应.csv').then(response => response.text()),
     fetch('场景字符对应.csv').then(response => response.text()),
     fetch('sfx_list.json').then(response => response.json())
 ])
